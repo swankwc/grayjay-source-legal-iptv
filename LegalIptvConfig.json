@@ -17,18 +17,12 @@
   ],
   "allowEval": false,
   "allowUrls": [
+    "swankwc.github.io",
     "iptv-org.github.io",
     "192.168.10.128",
     "192.168.10.142"
   ],
   "settings": [
-    {
-      "variable": "playlistMirrorBase",
-      "name": "Playlist Mirror Base",
-      "description": "Optional LAN mirror base URL for playlist files. Leave blank to use IPTV-org directly.",
-      "type": "Text",
-      "default": "https://swankwc.github.io/grayjay-source-legal-iptv/mirror"
-    },
     {
       "variable": "homeFeedIndex",
       "name": "Home Feed",
