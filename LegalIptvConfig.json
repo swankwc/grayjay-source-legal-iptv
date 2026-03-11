@@ -1,5 +1,4 @@
 {
-  "_signatureNote": "Re-sign LegalIptvScript.js and update scriptSignature + scriptPublicKey before publishing.",
   "name": "Legal IPTV",
   "description": "Browse 20+ curated legal free IPTV playlists inside Grayjay. Live TV, Movies, Series, Kids, Sports, News, Music, Documentary — filterable by language, country, and content type. EPG guide data where available.",
   "author": "Wesley Swank",
@@ -11,8 +10,8 @@
   "version": 4,
   "iconUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/icon.svg",
   "id": "2d2688c4-6d7c-45ad-a6ff-aacc68786f90",
-  "scriptSignature": "tlWwgRv0vLEe32WmwodfU+49Nl3Vz9+kPcSf5tsZk6rIRFmdYZxxjes2AbRiCw49Cs5GPyDanPYBNU5old2U8SevDd6sXesKWUsMN4d5SqSh7mQoOFil3CN/Imp9T8cusgKkzm4621VrMHLpdMVMikGXv5G2cg1WLl/9JJ1S5J2ffo11JPzvEITen0Q1TBF0MeTlJgG0TIJm+CH/cyJQeqi7sj0XDJLtOtaFyIKK9JTENFm2eAdDyw9VCBsqx2NyC65r7oV4wu/LjxRG/zCTaAOf4i5OCSVqe+HgCamVLH2WNNo5p2tM7HRVasd4U+qA2Nnn7dPIDy3MkVBnZf9QKmggjo6pCRZ4rIxWkh9Pt+4peC2pYblh9lEzRdt1PYRBZk4bUA7qBNc+qL/BOyMeseIJSjineeIe1XFUoxT/+objg34VGx6cxXMFdzQtJjDkskzt1lTuT5i1B7aSJRaLfXidpSsP1+y3yJc7EEIu36vBxlp71oLQCJCViV8RVrnRTmVokoWq4kRuDNFU/avAvCswPuVZYzCtMo3xO+ReEheXbEeEL9IyaEV7QqaGKXxnFfoUXZ6enOBYk02EANEZCCLCszoliNWmVucCtLZ7nQzhwootBYLp3zQ34x6FHVwcbgtmlf+B8VIFWxA5kQbtsLvRVHusV714CMbi4jglPfI=",
-  "scriptPublicKey": "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzx22yeOKD+vHHgVmKvEDyDr94sy79rGiVrNWGYL0MVwlSbb7bLjjLcuoEdgqaMhJNCJ0SZ6/HLqs+z/1G6EY+sb7DkovWm7iRRp2OwNlesMfwo6V69dGXZSME2AWMHSz3/JtrvykBRQ0JTvCuwss6sSy2Njii2095Yy5SNy7ghVIDGmCwSFmsRV1d5BycqpY09QZfcEpLaNU8OxrMdG6uFmU67U8sblZWJ52m2vjTKNpks2CH5BoZPrKHrHTR+l0rdGHNL3Bcm47h3Ah+h8B9fi+mKweVwGWNOXcCMX/mRgW99e69GoPJl8fTs2WmCKFEMbXi0ud3c2gabh7ug30xYCP/KG2Sbsf0KSdMT86HLL7ehlcz/dS0upLCrpGQFJZYzn/E0V9HHVlPO34O6mC0torjcss7knfnnSRZbozVxImXSp56Bm+3Z/zdLfJcQ3cVBLsnh2Lbejcb/8k5LFXzW1gE5drzVDhrsIOW6ZoNJQD7IN/qF4RDt7tVOWmCVhPOo+65DIb/uudP20fWrGZER/h8faazfxOrqoOzQlNCeM02ScaNhlpu2R2WTZbZnDVHqskjV3Nn8siZmplvVWjA8kQGsbZuLx5MGOGkxc0iigvyxDTMG6J/1FoaMn3MDmjT0XgNzw9BikmQCJfJ+YbGUosYn+zoyO3xcOAa4GknvMCAwEAAQ==",
+  "scriptSignature": "ZiaxaxoDuyNBx0nafqzJcvVJWAiqJXoxh8kKNaKKUcwnAGcE7dif8sh22rfGMi4XbYvHUDqnnMce9mYnTgj0U9J0XscJEMOC1IwXuRk+EZBgvqVgrxJxF7Sq1638A7C5ijmc9egedjO5e2LazwiAPDqxcpVBFQGfJkmuasJNSBSsiLvkED1cpM+KB0rwi4DUNA21vL+a6aRvLDuIV0FVyQ0Am5GPc9k2OSU7c+hKaW0wW2qoEu6tJliWM4mtRiLv8nvrWf8VfHTczJDMcvT+EST7on2ksNXyxWpKgyhGd73KVWnNtEm+IEuO825o8DjFbPzqpA/VtFm5eLLdIrzuHSpouEU3w41KPPvCZBUKcOZHaZmEcJ+8u5sC+HzpCh0R/5Z+Nxk2nW88cuRr+2BvtaczinU8FNHTRAJ//gQgUht1FsNArdyUgt33MFg0EYxdU2IUV9N5qJAj1IipjEiR5J+LFTeddCmTGy9fyK3CP0HDZXXxHmH6XB4CzTXQ1zfKsJrWjSBTPzd/iqFR1m/x9vTdI9pW3WblvSeEJFNM1IliucnsWGS2APWqWb71nPQC9LhU+f+JCztq17veBzcJjEe6lehul8iGWr2vaZulTcYy4gkuNrkHJKXQtzLoGy5CObusr6Oi9hEs1Z2Z57YacvvOrk5se7UzsXwDaaz7lIs=",
+  "scriptPublicKey": "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAo/AR19jUQFBTrlgHrvD3Z44cmU4jxR8aT5JiRgEL8NDCwmugRORmg9O9UssOlyZf9GcOCcNgiG3s6DxLKoRdEOJMFsISrkSGRJ7HBpZGcxdLdPSLWZjPYBKbb8MKcwPjCfv75LHULVMg8KAMFfM9kRK9n2ApPzddtmAiBbx/NEOMRfHWaUy5KAXXF1JnX0Jdka+AplCM5WckQJcFi/LUfiLj6UTxBj6BGQd8X892B9cLecT+1az5ZgvO1iy82FmX22PsJR5VAPiPLhLHso4UZ1uEQLiw4p/Y93sYqN/psdVK75fCv3veRmrA0Rz23Y+l/LH/pKzMuLGMu2s90UZNNggt19JKeYKRNwq+aUvVBM7e9FOCo2h98WM8bnfOlSUbn5jNTVrrV2gyptEKMm16LP7VHYG7i9rGhSUiRJtfVPrPYUhcudAQKpFqSn3BoGJHuEuY4IqNfsSlbSyelDTruiLln03L2Mc+P+bbeb1VP1Y9lg459EoeSfCeXJpFQuFbvUTfTUX+gfhY1kU4+49qSKJfAIxEvlt/whAKzM+lWb+dPXvkUdI762lqAvygYyH7qwbErFKqdT0ukzgqa6lCBZ/NhKKDDlanAreKgPTsb2jRWmoL0bsEeBaybrDOYCDna83NgooAe++cB6KvZE7ZHW8dTd1aEifCyCgRnkcDRksCAwEAAQ==",
   "packages": [
     "Http"
   ],
@@ -20,9 +19,7 @@
   "allowUrls": [
     "swankwc.github.io",
     "iptv-org.github.io",
-    "raw.githubusercontent.com",
-    "192.168.10.128",
-    "192.168.10.142"
+    "raw.githubusercontent.com"
   ],
   "settings": [
     {
@@ -75,7 +72,17 @@
       "description": "Show only Live TV, Movies, Series, or everything.",
       "type": "Dropdown",
       "default": "0",
-      "options": ["All types", "Live TV only", "Movies only", "Series only", "Kids only", "Sports only", "News only", "Music only", "Documentary only"]
+      "options": [
+        "All types",
+        "Live TV only",
+        "Movies only",
+        "Series only",
+        "Kids only",
+        "Sports only",
+        "News only",
+        "Music only",
+        "Documentary only"
+      ]
     },
     {
       "variable": "languageFilter",
@@ -83,7 +90,17 @@
       "description": "Limit results to a specific language. Leave as 'Any' to show all.",
       "type": "Dropdown",
       "default": "0",
-      "options": ["Any language", "English", "Spanish", "French", "Portuguese", "Arabic", "Chinese", "Hindi", "Other"]
+      "options": [
+        "Any language",
+        "English",
+        "Spanish",
+        "French",
+        "Portuguese",
+        "Arabic",
+        "Chinese",
+        "Hindi",
+        "Other"
+      ]
     },
     {
       "variable": "countryFilter",
@@ -91,7 +108,14 @@
       "description": "Limit results to channels from a specific country.",
       "type": "Dropdown",
       "default": "0",
-      "options": ["Any country", "United States", "United Kingdom", "Canada", "Australia", "Other"]
+      "options": [
+        "Any country",
+        "United States",
+        "United Kingdom",
+        "Canada",
+        "Australia",
+        "Other"
+      ]
     },
     {
       "variable": "hideUndefined",
@@ -106,7 +130,12 @@
       "description": "Only show channels whose name includes the selected quality tag.",
       "type": "Dropdown",
       "default": "0",
-      "options": ["Any resolution", "HD+ (1080p)", "HD (720p)", "SD (576p/480p/270p)"]
+      "options": [
+        "Any resolution",
+        "HD+ (1080p)",
+        "HD (720p)",
+        "SD (576p/480p/270p)"
+      ]
     },
     {
       "variable": "playlistMirrorBase",
