@@ -6,7 +6,7 @@
   "platformUrl": "https://iptv-org.github.io/iptv/",
   "sourceUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/LegalIptvConfig.json",
   "repositoryUrl": "https://github.com/swankwc/grayjay-source-legal-iptv",
-  "scriptUrl": "./LegalIptvScript.js",
+  "scriptUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/LegalIptvScript.js",
   "version": 4,
   "iconUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/icon.svg",
   "id": "2d2688c4-6d7c-45ad-a6ff-aacc68786f90",
