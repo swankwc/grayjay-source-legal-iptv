@@ -1,13 +1,14 @@
 {
+  "_signatureNote": "Re-sign LegalIptvScript.js and update scriptSignature + scriptPublicKey before publishing.",
   "name": "Legal IPTV",
-  "description": "Browse legal IPTV-org channel playlists inside Grayjay.",
+  "description": "Browse 20+ curated legal free IPTV playlists inside Grayjay. Live TV, Movies, Series, Kids, Sports, News, Music, Documentary — filterable by language, country, and content type. EPG guide data where available.",
   "author": "Wesley Swank",
   "authorUrl": "https://github.com/swankwc",
   "platformUrl": "https://iptv-org.github.io/iptv/",
   "sourceUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/LegalIptvConfig.json",
   "repositoryUrl": "https://github.com/swankwc/grayjay-source-legal-iptv",
   "scriptUrl": "./LegalIptvScript.js",
-  "version": 3,
+  "version": 4,
   "iconUrl": "https://swankwc.github.io/grayjay-source-legal-iptv/icon.svg",
   "id": "2d2688c4-6d7c-45ad-a6ff-aacc68786f90",
   "scriptSignature": "tlWwgRv0vLEe32WmwodfU+49Nl3Vz9+kPcSf5tsZk6rIRFmdYZxxjes2AbRiCw49Cs5GPyDanPYBNU5old2U8SevDd6sXesKWUsMN4d5SqSh7mQoOFil3CN/Imp9T8cusgKkzm4621VrMHLpdMVMikGXv5G2cg1WLl/9JJ1S5J2ffo11JPzvEITen0Q1TBF0MeTlJgG0TIJm+CH/cyJQeqi7sj0XDJLtOtaFyIKK9JTENFm2eAdDyw9VCBsqx2NyC65r7oV4wu/LjxRG/zCTaAOf4i5OCSVqe+HgCamVLH2WNNo5p2tM7HRVasd4U+qA2Nnn7dPIDy3MkVBnZf9QKmggjo6pCRZ4rIxWkh9Pt+4peC2pYblh9lEzRdt1PYRBZk4bUA7qBNc+qL/BOyMeseIJSjineeIe1XFUoxT/+objg34VGx6cxXMFdzQtJjDkskzt1lTuT5i1B7aSJRaLfXidpSsP1+y3yJc7EEIu36vBxlp71oLQCJCViV8RVrnRTmVokoWq4kRuDNFU/avAvCswPuVZYzCtMo3xO+ReEheXbEeEL9IyaEV7QqaGKXxnFfoUXZ6enOBYk02EANEZCCLCszoliNWmVucCtLZ7nQzhwootBYLp3zQ34x6FHVwcbgtmlf+B8VIFWxA5kQbtsLvRVHusV714CMbi4jglPfI=",
@@ -19,6 +20,7 @@
   "allowUrls": [
     "swankwc.github.io",
     "iptv-org.github.io",
+    "raw.githubusercontent.com",
     "192.168.10.128",
     "192.168.10.142"
   ],
@@ -30,13 +32,28 @@
       "type": "Dropdown",
       "default": "1",
       "options": [
-        "All legal channels",
-        "English channels",
-        "United States channels",
-        "Movies channels",
-        "Series channels",
-        "Kids channels",
-        "News channels"
+        "All Legal Channels",
+        "English",
+        "Spanish / Español",
+        "French / Français",
+        "Portuguese / Português",
+        "Arabic / العربية",
+        "Chinese / 中文",
+        "Hindi / हिन्दी",
+        "United States",
+        "United Kingdom",
+        "Canada",
+        "Australia",
+        "Movies",
+        "Series",
+        "Kids",
+        "News",
+        "Sports",
+        "Music",
+        "Documentary",
+        "Entertainment",
+        "Religious",
+        "Free-TV Curated"
       ]
     },
     {
@@ -51,6 +68,52 @@
         "200",
         "400"
       ]
+    },
+    {
+      "variable": "contentTypeFilter",
+      "name": "Content Type Filter",
+      "description": "Show only Live TV, Movies, Series, or everything.",
+      "type": "Dropdown",
+      "default": "0",
+      "options": ["All types", "Live TV only", "Movies only", "Series only", "Kids only", "Sports only", "News only", "Music only", "Documentary only"]
+    },
+    {
+      "variable": "languageFilter",
+      "name": "Language Filter",
+      "description": "Limit results to a specific language. Leave as 'Any' to show all.",
+      "type": "Dropdown",
+      "default": "0",
+      "options": ["Any language", "English", "Spanish", "French", "Portuguese", "Arabic", "Chinese", "Hindi", "Other"]
+    },
+    {
+      "variable": "countryFilter",
+      "name": "Country Filter",
+      "description": "Limit results to channels from a specific country.",
+      "type": "Dropdown",
+      "default": "0",
+      "options": ["Any country", "United States", "United Kingdom", "Canada", "Australia", "Other"]
+    },
+    {
+      "variable": "hideUndefined",
+      "name": "Hide Uncategorised Channels",
+      "description": "Skip channels with no group-title set.",
+      "type": "Boolean",
+      "default": "false"
+    },
+    {
+      "variable": "resolutionFilter",
+      "name": "Resolution Filter",
+      "description": "Only show channels whose name includes the selected quality tag.",
+      "type": "Dropdown",
+      "default": "0",
+      "options": ["Any resolution", "HD+ (1080p)", "HD (720p)", "SD (576p/480p/270p)"]
+    },
+    {
+      "variable": "playlistMirrorBase",
+      "name": "Custom Mirror Base URL",
+      "description": "Override the GitHub Pages mirror base. Leave blank to use the default mirror bundled with this plugin.",
+      "type": "TextField",
+      "default": ""
     }
   ],
   "Testing": {
