@@ -531,13 +531,13 @@ function applyFilters(entries) {
 
     // Country Filter
     if (countryIdx > 0) {
-      const countryMap = ["", "us", "uk", "ca", "au"];
+      const countryMap = ["", "us", "gb", "ca", "au"];
       if (countryIdx < countryMap.length) {
         const target = countryMap[countryIdx];
         if (entry.country.toLowerCase().indexOf(target) === -1) return false;
       } else {
         // "Other"
-        const knownCountries = ["us", "uk", "ca", "au"];
+        const knownCountries = ["us", "gb", "ca", "au"];
         let isKnown = false;
         for (let i = 0; i < knownCountries.length; i++) {
           if (entry.country.toLowerCase().indexOf(knownCountries[i]) !== -1) {
@@ -852,7 +852,7 @@ function fetchEpgForDomain(domain) {
 
 function getEpgNow(entry) {
   if (!entry.tvgId || entry.tvgId.indexOf("@") === -1) return null;
-  const domain = entry.tvgId.split("@")[1];
+  const domain = entry.tvgId.split("@")[0];
   const epgData = fetchEpgForDomain(domain);
   if (!epgData) return null;
 
