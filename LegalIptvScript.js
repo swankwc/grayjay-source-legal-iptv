@@ -7,18 +7,36 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 const STALE_CACHE_TTL_MS = 60 * 60 * 1000;
 
 const PLAYLISTS = [
-  { key: "all", name: "All legal channels", url: BASE_URL + "index.m3u" },
-  { key: "eng", name: "English channels", url: BASE_URL + "languages/eng.m3u" },
-  { key: "us", name: "United States channels", url: BASE_URL + "countries/us.m3u" },
-  { key: "movies", name: "Movies channels", url: BASE_URL + "categories/movies.m3u" },
-  { key: "series", name: "Series channels", url: BASE_URL + "categories/series.m3u" },
-  { key: "kids", name: "Kids channels", url: BASE_URL + "categories/kids.m3u" },
-  { key: "news", name: "News channels", url: BASE_URL + "categories/news.m3u" }
+  // iptv-org by category
+  { key: "all",           name: "All Legal Channels",         url: BASE_URL + "index.m3u" },
+  { key: "eng",           name: "English",                    url: BASE_URL + "languages/eng.m3u" },
+  { key: "spa",           name: "Spanish / Español",          url: BASE_URL + "languages/spa.m3u" },
+  { key: "fra",           name: "French / Français",          url: BASE_URL + "languages/fra.m3u" },
+  { key: "por",           name: "Portuguese / Português",     url: BASE_URL + "languages/por.m3u" },
+  { key: "ara",           name: "Arabic / العربية",           url: BASE_URL + "languages/ara.m3u" },
+  { key: "zho",           name: "Chinese / 中文",             url: BASE_URL + "languages/zho.m3u" },
+  { key: "hin",           name: "Hindi / हिन्दी",             url: BASE_URL + "languages/hin.m3u" },
+  { key: "us",            name: "United States",              url: BASE_URL + "countries/us.m3u" },
+  { key: "gb",            name: "United Kingdom",             url: BASE_URL + "countries/gb.m3u" },
+  { key: "ca",            name: "Canada",                     url: BASE_URL + "countries/ca.m3u" },
+  { key: "au",            name: "Australia",                  url: BASE_URL + "countries/au.m3u" },
+  { key: "movies",        name: "Movies",                     url: BASE_URL + "categories/movies.m3u" },
+  { key: "series",        name: "Series",                     url: BASE_URL + "categories/series.m3u" },
+  { key: "kids",          name: "Kids",                       url: BASE_URL + "categories/kids.m3u" },
+  { key: "news",          name: "News",                       url: BASE_URL + "categories/news.m3u" },
+  { key: "sports",        name: "Sports",                     url: BASE_URL + "categories/sports.m3u" },
+  { key: "music",         name: "Music",                      url: BASE_URL + "categories/music.m3u" },
+  { key: "documentary",   name: "Documentary",                url: BASE_URL + "categories/documentary.m3u" },
+  { key: "entertainment", name: "Entertainment",              url: BASE_URL + "categories/entertainment.m3u" },
+  { key: "religious",     name: "Religious",                  url: BASE_URL + "categories/religious.m3u" },
+  // Free-TV curated list (https://github.com/Free-TV/IPTV) — genuinely free, no geo-block
+  { key: "freetv",        name: "Free-TV Curated",            url: "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8" },
 ];
 
 let config = {};
 let pluginSettings = {};
 let playlistCache = {};
+let epgCache = {};
 
 source.enable = function(conf, settings, savedState) {
   config = conf ?? {};
@@ -49,14 +67,54 @@ source.getHome = function(continuationToken) {
 };
 
 source.searchSuggestions = function(query) {
-  return [];
+  if (!query || query.trim().length < 2) return [];
+  const playlist = getActivePlaylist();
+  const lowered = query.trim().toLowerCase();
+  const seen = {};
+  const suggestions = [];
+  const entries = getEntries(playlist);
+  for (let i = 0; i < entries.length && suggestions.length < 8; i++) {
+    const name = entries[i].name;
+    const key = name.toLowerCase();
+    if (key.indexOf(lowered) === 0 && !seen[key]) {
+      seen[key] = true;
+      suggestions.push(name);
+    }
+  }
+  // Also suggest matching group names
+  const groups = getGroups(playlist);
+  for (let i = 0; i < groups.length && suggestions.length < 12; i++) {
+    const g = groups[i].name;
+    const key = g.toLowerCase();
+    if (key.indexOf(lowered) === 0 && !seen[key]) {
+      seen[key] = true;
+      suggestions.push(g);
+    }
+  }
+  return suggestions;
 };
 
 source.getSearchCapabilities = function() {
   return {
-    types: [Type.Feed.Mixed],
+    types: [Type.Feed.Mixed, Type.Feed.Streams],
     sorts: [Type.Order.Chronological],
-    filters: []
+    filters: [
+      {
+        id: "type",
+        name: "Type",
+        isMultiSelect: false,
+        filters: [
+          { id: "live",        name: "Live TV",     value: "live" },
+          { id: "movies",      name: "Movies",      value: "movies" },
+          { id: "series",      name: "Series",      value: "series" },
+          { id: "kids",        name: "Kids",        value: "kids" },
+          { id: "news",        name: "News",        value: "news" },
+          { id: "sports",      name: "Sports",      value: "sports" },
+          { id: "music",       name: "Music",       value: "music" },
+          { id: "documentary", name: "Documentary", value: "documentary" }
+        ]
+      }
+    ]
   };
 };
 
@@ -64,9 +122,21 @@ source.search = function(query, type, order, filters, continuationToken) {
   const playlist = getActivePlaylist();
   const page = getPageFromToken(continuationToken);
   const lowered = safeString(query).trim().toLowerCase();
+
+  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+
   const results = getEntries(playlist).filter(function(entry) {
-    return lowered.length === 0 || matchesQuery(entry, lowered);
+    if (lowered.length > 0 && !matchesQuery(entry, lowered)) return false;
+    if (typeFilter.length > 0) {
+      if (typeFilter === "live") {
+        if (isVod(entry)) return false;
+      } else {
+        if (entry.groupName.toLowerCase().indexOf(typeFilter) === -1) return false;
+      }
+    }
+    return true;
   });
+
   const start = (page - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
   return new LegalIptvVideoPager(results.slice(start, end).map(entryToPlatformVideo).filter(Boolean), end < results.length, {
@@ -81,7 +151,23 @@ source.getSearchChannelContentsCapabilities = function() {
   return {
     types: [Type.Feed.Mixed],
     sorts: [Type.Order.Chronological],
-    filters: []
+    filters: [
+      {
+        id: "type",
+        name: "Type",
+        isMultiSelect: false,
+        filters: [
+          { id: "live",        name: "Live TV",     value: "live" },
+          { id: "movies",      name: "Movies",      value: "movies" },
+          { id: "series",      name: "Series",      value: "series" },
+          { id: "kids",        name: "Kids",        value: "kids" },
+          { id: "news",        name: "News",        value: "news" },
+          { id: "sports",      name: "Sports",      value: "sports" },
+          { id: "music",       name: "Music",       value: "music" },
+          { id: "documentary", name: "Documentary", value: "documentary" }
+        ]
+      }
+    ]
   };
 };
 
@@ -94,8 +180,20 @@ source.searchChannelContents = function(channelUrl, query, type, order, filters,
   const playlist = getPlaylistByKey(channelRef.playlistKey);
   const page = getPageFromToken(continuationToken);
   const lowered = safeString(query).trim().toLowerCase();
+
+  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+
   const entries = getEntries(playlist).filter(function(entry) {
-    return entry.groupSlug === channelRef.groupSlug && (lowered.length === 0 || matchesQuery(entry, lowered));
+    if (entry.groupSlug !== channelRef.groupSlug) return false;
+    if (lowered.length > 0 && !matchesQuery(entry, lowered)) return false;
+    if (typeFilter.length > 0) {
+      if (typeFilter === "live") {
+        if (isVod(entry)) return false;
+      } else {
+        if (entry.groupName.toLowerCase().indexOf(typeFilter) === -1) return false;
+      }
+    }
+    return true;
   });
   const start = (page - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
@@ -145,7 +243,23 @@ source.getChannelCapabilities = function() {
   return {
     types: [Type.Feed.Mixed],
     sorts: [Type.Order.Chronological],
-    filters: []
+    filters: [
+      {
+        id: "type",
+        name: "Type",
+        isMultiSelect: false,
+        filters: [
+          { id: "live",        name: "Live TV",     value: "live" },
+          { id: "movies",      name: "Movies",      value: "movies" },
+          { id: "series",      name: "Series",      value: "series" },
+          { id: "kids",        name: "Kids",        value: "kids" },
+          { id: "news",        name: "News",        value: "news" },
+          { id: "sports",      name: "Sports",      value: "sports" },
+          { id: "music",       name: "Music",       value: "music" },
+          { id: "documentary", name: "Documentary", value: "documentary" }
+        ]
+      }
+    ]
   };
 };
 
@@ -153,8 +267,19 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
   const channelRef = parseChannelUrl(url);
   const playlist = getPlaylistByKey(channelRef.playlistKey);
   const page = getPageFromToken(continuationToken);
+
+  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+
   const entries = getEntries(playlist).filter(function(entry) {
-    return entry.groupSlug === channelRef.groupSlug;
+    if (entry.groupSlug !== channelRef.groupSlug) return false;
+    if (typeFilter.length > 0) {
+      if (typeFilter === "live") {
+        if (isVod(entry)) return false;
+      } else {
+        if (entry.groupName.toLowerCase().indexOf(typeFilter) === -1) return false;
+      }
+    }
+    return true;
   });
   const start = (page - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;
@@ -197,6 +322,7 @@ source.getContentDetails = function(url) {
     throw new ScriptException("Unable to resolve IPTV stream details for " + ref.entryId);
   }
 
+  const vod = isVod(entry);
   const playback = buildPlayback(entry);
   return new PlatformVideoDetails({
     id: makePlatformId("stream:" + entry.id),
@@ -204,10 +330,10 @@ source.getContentDetails = function(url) {
     thumbnails: buildThumbnails(entry.logo),
     author: buildAuthor(entry),
     uploadDate: 0,
-    duration: 0,
+    duration: vod ? -1 : 0,
     viewCount: 0,
     url: normalizeDetailsUrl(entry.playlistKey, entry.id),
-    isLive: true,
+    isLive: !vod,
     description: buildDescription(entry),
     video: playback.descriptor,
     hls: playback.hls,
@@ -336,22 +462,113 @@ function getEntries(playlist) {
   const cacheKey = playlist.key;
   const cached = playlistCache[cacheKey];
   const now = Date.now();
+  let entries;
+
   if (cached && now - cached.timestamp < CACHE_TTL_MS) {
-    return cached.entries;
-  }
-  try {
-    const entries = fetchPlaylistEntries(playlist);
-    playlistCache[cacheKey] = {
-      timestamp: now,
-      entries: entries
-    };
-    return entries;
-  } catch (error) {
-    if (cached && now - cached.timestamp < STALE_CACHE_TTL_MS) {
-      return cached.entries;
+    entries = cached.entries;
+  } else {
+    try {
+      entries = fetchPlaylistEntries(playlist);
+      playlistCache[cacheKey] = {
+        timestamp: now,
+        entries: entries
+      };
+    } catch (error) {
+      if (cached && now - cached.timestamp < STALE_CACHE_TTL_MS) {
+        entries = cached.entries;
+      } else {
+        throw error;
+      }
     }
-    throw error;
   }
+
+  return applyFilters(entries);
+}
+
+function applyFilters(entries) {
+  if (!entries) return [];
+
+  const typeIdx = parseInt(safeString(pluginSettings.contentTypeFilter, "0"), 10);
+  const langIdx = parseInt(safeString(pluginSettings.languageFilter, "0"), 10);
+  const countryIdx = parseInt(safeString(pluginSettings.countryFilter, "0"), 10);
+  const hideUndef = safeString(pluginSettings.hideUndefined, "false") === "true";
+  const resIdx = parseInt(safeString(pluginSettings.resolutionFilter, "0"), 10);
+
+  return entries.filter(function(entry) {
+    // Hide undefined
+    if (hideUndef && entry.groupName === "IPTV") return false;
+
+    // Content Type Filter
+    if (typeIdx > 0) {
+      const typeMap = ["", "live", "movies", "series", "kids", "sports", "news", "music", "documentary"];
+      const target = typeMap[typeIdx];
+      if (target === "live") {
+        if (isVod(entry)) return false;
+      } else {
+        if (entry.groupName.toLowerCase().indexOf(target) === -1) return false;
+      }
+    }
+
+    // Language Filter
+    if (langIdx > 0) {
+      const langMap = ["", "eng", "spa", "fra", "por", "ara", "zho", "hin"];
+      if (langIdx < langMap.length) {
+        const target = langMap[langIdx];
+        if (entry.language.toLowerCase().indexOf(target) === -1) return false;
+      } else {
+        // "Other"
+        const knownLangs = ["eng", "spa", "fra", "por", "ara", "zho", "hin"];
+        let isKnown = false;
+        for (let i = 0; i < knownLangs.length; i++) {
+          if (entry.language.toLowerCase().indexOf(knownLangs[i]) !== -1) {
+            isKnown = true;
+            break;
+          }
+        }
+        if (isKnown) return false;
+      }
+    }
+
+    // Country Filter
+    if (countryIdx > 0) {
+      const countryMap = ["", "us", "gb", "ca", "au"];
+      if (countryIdx < countryMap.length) {
+        const target = countryMap[countryIdx];
+        if (entry.country.toLowerCase().indexOf(target) === -1) return false;
+      } else {
+        // "Other"
+        const knownCountries = ["us", "gb", "ca", "au"];
+        let isKnown = false;
+        for (let i = 0; i < knownCountries.length; i++) {
+          if (entry.country.toLowerCase().indexOf(knownCountries[i]) !== -1) {
+            isKnown = true;
+            break;
+          }
+        }
+        if (isKnown) return false;
+      }
+    }
+
+    // Resolution Filter
+    if (resIdx > 0) {
+      const nameRaw = entry.nameRaw.toLowerCase();
+      if (resIdx === 1 && nameRaw.indexOf("1080p") === -1) return false;
+      if (resIdx === 2 && nameRaw.indexOf("720p") === -1) return false;
+      if (resIdx === 3) {
+        const sdTags = ["576p", "480p", "270p"];
+        let hasSD = false;
+        for (let i = 0; i < sdTags.length; i++) {
+          if (nameRaw.indexOf(sdTags[i]) !== -1) {
+            hasSD = true;
+            break;
+          }
+        }
+        if (!hasSD) return false;
+      }
+    }
+
+    return true;
+  });
 }
 
 function getGroups(playlist) {
@@ -415,11 +632,19 @@ function parsePlaylist(body, playlist) {
     const groupName = firstNonEmpty(pending.groupTitle, playlist.name, "IPTV");
     const idSeed = playlist.key + "|" + line + "|" + pending.name + "|" + groupName;
     const entryId = hashText(idSeed);
+
+    const originalName = firstNonEmpty(pending.name, "Untitled channel");
+    const qualityMatch = /\((\d{3,4}p)\)/.exec(originalName);
+    const quality = qualityMatch ? qualityMatch[1] : "";
+    const cleanName = originalName.replace(/\s*\(\d{3,4}p\)\s*$/, "").trim() || originalName;
+
     entries.push({
       id: entryId,
       playlistKey: playlist.key,
       playlistName: playlist.name,
-      name: firstNonEmpty(pending.name, "Untitled channel"),
+      name: cleanName,
+      nameRaw: originalName,
+      quality: quality,
       streamUrl: line,
       logo: firstNonEmpty(pending.tvgLogo, ""),
       tvgId: firstNonEmpty(pending.tvgId, ""),
@@ -516,16 +741,17 @@ function parseExtInfLine(line) {
 }
 
 function entryToPlatformVideo(entry) {
+  const vod = isVod(entry);
   return new PlatformVideo({
     id: makePlatformId("stream:" + entry.id),
     name: entry.name,
     thumbnails: buildThumbnails(entry.logo),
     author: buildAuthor(entry),
     uploadDate: 0,
-    duration: 0,
+    duration: vod ? -1 : 0,
     viewCount: 0,
     url: normalizeDetailsUrl(entry.playlistKey, entry.id),
-    isLive: true
+    isLive: !vod
   });
 }
 
@@ -598,11 +824,129 @@ function buildPlayback(entry) {
   };
 }
 
+function fetchEpgForDomain(domain) {
+  const cacheKey = domain;
+  const now = Date.now();
+  if (epgCache[cacheKey] && now - epgCache[cacheKey].timestamp < CACHE_TTL_MS) {
+    return epgCache[cacheKey].data;
+  }
+
+  try {
+    const url = "https://iptv-org.github.io/epg/guides/" + domain + ".xml";
+    const response = http.GET(url, {}, false);
+    if (!response || !response.isOk) {
+      throw new Error("EPG not found for " + domain);
+    }
+    const epgData = parseXmltvBody(response.body);
+    epgCache[cacheKey] = {
+      timestamp: now,
+      data: epgData
+    };
+    return epgData;
+  } catch (e) {
+    log("EPG fetch failed for " + domain + ": " + e.message);
+    if (epgCache[cacheKey]) return epgCache[cacheKey].data;
+    return null;
+  }
+}
+
+function getEpgNow(entry) {
+  if (!entry.tvgId || entry.tvgId.indexOf("@") === -1) return null;
+  const domain = entry.tvgId.split("@")[0];
+  const epgData = fetchEpgForDomain(domain);
+  if (!epgData) return null;
+
+  const channelId = entry.tvgId;
+  const programs = epgData.filter(function(p) { return p.channelId === channelId; });
+  if (programs.length === 0) return null;
+
+  const now = new Date();
+  let current = null;
+  let next = null;
+
+  for (let i = 0; i < programs.length; i++) {
+    const p = programs[i];
+    if (now >= p.start && now < p.stop) {
+      current = p;
+      if (i + 1 < programs.length) {
+        next = programs[i + 1];
+      }
+      break;
+    }
+  }
+
+  return { current: current, next: next };
+}
+
+function parseXmltvBody(body) {
+  const programs = [];
+  const progRegex = /<programme\s+([^>]+)>([\s\S]*?)<\/programme>/g;
+  const titleRegex = /<title[^>]*>([\s\S]*?)<\/title>/;
+  const descRegex = /<desc[^>]*>([\s\S]*?)<\/desc>/;
+
+  let match;
+  while ((match = progRegex.exec(body)) !== null) {
+    const attrs = match[1];
+    const content = match[2];
+
+    const startMatch = /start="([^"]+)"/.exec(attrs);
+    const stopMatch = /stop="([^"]+)"/.exec(attrs);
+    const channelMatch = /channel="([^"]+)"/.exec(attrs);
+
+    if (startMatch && stopMatch && channelMatch) {
+      const titleMatch = titleRegex.exec(content);
+      const descMatch = descRegex.exec(content);
+
+      programs.push({
+        channelId: channelMatch[1],
+        start: parseXmltvDate(startMatch[1]),
+        stop: parseXmltvDate(stopMatch[1]),
+        title: titleMatch ? decodeXmlEntities(titleMatch[1]) : "Untitled",
+        desc: descMatch ? decodeXmlEntities(descMatch[1]) : ""
+      });
+    }
+  }
+  return programs;
+}
+
+function parseXmltvDate(str) {
+  // Format: 20260310120000 +0000
+  const y = parseInt(str.substring(0, 4));
+  const m = parseInt(str.substring(4, 6)) - 1;
+  const d = parseInt(str.substring(6, 8));
+  const h = parseInt(str.substring(8, 10));
+  const min = parseInt(str.substring(10, 12));
+  const s = parseInt(str.substring(12, 14));
+  return new Date(Date.UTC(y, m, d, h, min, s));
+}
+
+function decodeXmlEntities(str) {
+  return str.replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/&quot;/g, "\"")
+            .replace(/&apos;/g, "'");
+}
+
 function buildDescription(entry) {
-  const lines = [
-    "Playlist: " + entry.playlistName,
-    "Group: " + entry.groupName
-  ];
+  const lines = [];
+
+  try {
+    const epg = getEpgNow(entry);
+    if (epg && epg.current) {
+      lines.push("NOW: " + epg.current.title);
+      if (epg.next) {
+        lines.push("NEXT: " + epg.next.title);
+      }
+      lines.push("");
+    }
+  } catch (e) {
+    // Ignore EPG errors
+  }
+
+  lines.push("Playlist: " + entry.playlistName);
+  lines.push("Group: " + entry.groupName);
+
   if (entry.language) {
     lines.push("Language: " + entry.language);
   }
@@ -725,6 +1069,11 @@ function slugify(value) {
 
 function makePlatformId(id) {
   return new PlatformID(PLATFORM, id, config.id);
+}
+
+function isVod(entry) {
+  const group = entry.groupName.toLowerCase();
+  return group.indexOf("movies") !== -1 || group.indexOf("series") !== -1;
 }
 
 function firstNonEmpty() {
