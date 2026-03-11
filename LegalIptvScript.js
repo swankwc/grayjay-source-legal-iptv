@@ -83,9 +83,9 @@ source.searchSuggestions = function(query) {
   }
   // Also suggest matching group names
   var groups = getGroups(playlist);
-  for (var i = 0; i < groups.length && suggestions.length < 12; i++) {
+  for (i = 0; i < groups.length && suggestions.length < 12; i++) {
     var g = groups[i].name;
-    var key = g.toLowerCase();
+    key = g.toLowerCase();
     if (key.indexOf(lowered) === 0 && !seen[key]) {
       seen[key] = true;
       suggestions.push(g);
@@ -511,7 +511,7 @@ function applyFilters(entries) {
     if (langIdx > 0) {
       var langMap = ["", "eng", "spa", "fra", "por", "ara", "zho", "hin"];
       if (langIdx < langMap.length) {
-        var target = langMap[langIdx];
+        target = langMap[langIdx];
         if (entry.language.toLowerCase().indexOf(target) === -1) return false;
       } else {
         // "Other"
@@ -531,13 +531,13 @@ function applyFilters(entries) {
     if (countryIdx > 0) {
       var countryMap = ["", "us", "gb", "ca", "au"];
       if (countryIdx < countryMap.length) {
-        var target = countryMap[countryIdx];
+        target = countryMap[countryIdx];
         if (entry.country.toLowerCase().indexOf(target) === -1) return false;
       } else {
         // "Other"
         var knownCountries = ["us", "gb", "ca", "au"];
-        var isKnown = false;
-        for (var i = 0; i < knownCountries.length; i++) {
+        isKnown = false;
+        for (i = 0; i < knownCountries.length; i++) {
           if (entry.country.toLowerCase().indexOf(knownCountries[i]) !== -1) {
             isKnown = true;
             break;
@@ -555,7 +555,7 @@ function applyFilters(entries) {
       if (resIdx === 3) {
         var sdTags = ["576p", "480p", "270p"];
         var hasSD = false;
-        for (var i = 0; i < sdTags.length; i++) {
+        for (i = 0; i < sdTags.length; i++) {
           if (nameRaw.indexOf(sdTags[i]) !== -1) {
             hasSD = true;
             break;
@@ -589,7 +589,7 @@ function getGroups(playlist) {
   }
   var groups = [];
   var keys = Object.keys(map);
-  for (var i = 0; i < keys.length; i += 1) {
+  for (i = 0; i < keys.length; i += 1) {
     groups.push(map[keys[i]]);
   }
   groups.sort(function(a, b) {
