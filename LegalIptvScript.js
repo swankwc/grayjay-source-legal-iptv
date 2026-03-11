@@ -39,8 +39,8 @@ let playlistCache = {};
 let epgCache = {};
 
 source.enable = function(conf, settings, savedState) {
-  config = conf ?? {};
-  pluginSettings = settings ?? {};
+  config = (conf !== null && conf !== undefined) ? conf : {};
+  pluginSettings = (settings !== null && settings !== undefined) ? settings : {};
 };
 
 source.disable = function() {};
@@ -395,37 +395,35 @@ source.getUserSubscriptions = function() {
   return new ChannelPager([], false);
 };
 
-class LegalIptvVideoPager extends VideoPager {
-  constructor(results, hasMore, context) {
-    super(results, hasMore, context);
-  }
-
-  nextPage() {
-    if (this.context.kind === "home") {
-      return source.getHome(this.context.page);
-    }
-    if (this.context.kind === "search") {
-      return source.search(this.context.query, Type.Feed.Mixed, this.context.order, {}, this.context.page);
-    }
-    if (this.context.kind === "channelContents") {
-      return source.getChannelContents(this.context.url, Type.Feed.Mixed, this.context.order, {}, this.context.page);
-    }
-    if (this.context.kind === "searchChannelContents") {
-      return source.searchChannelContents(this.context.url, this.context.query, Type.Feed.Mixed, this.context.order, {}, this.context.page);
-    }
-    return new VideoPager([], false);
-  }
+function LegalIptvVideoPager(results, hasMore, context) {
+  VideoPager.call(this, results, hasMore, context);
 }
-
-class LegalIptvChannelPager extends ChannelPager {
-  constructor(results, hasMore, context) {
-    super(results, hasMore, context);
+LegalIptvVideoPager.prototype = Object.create(VideoPager.prototype);
+LegalIptvVideoPager.prototype.constructor = LegalIptvVideoPager;
+LegalIptvVideoPager.prototype.nextPage = function() {
+  if (this.context.kind === "home") {
+    return source.getHome(this.context.page);
   }
-
-  nextPage() {
-    return source.searchChannels(this.context.query, this.context.page);
+  if (this.context.kind === "search") {
+    return source.search(this.context.query, Type.Feed.Mixed, this.context.order, {}, this.context.page);
   }
+  if (this.context.kind === "channelContents") {
+    return source.getChannelContents(this.context.url, Type.Feed.Mixed, this.context.order, {}, this.context.page);
+  }
+  if (this.context.kind === "searchChannelContents") {
+    return source.searchChannelContents(this.context.url, this.context.query, Type.Feed.Mixed, this.context.order, {}, this.context.page);
+  }
+  return new VideoPager([], false);
+};
+
+function LegalIptvChannelPager(results, hasMore, context) {
+  ChannelPager.call(this, results, hasMore, context);
 }
+LegalIptvChannelPager.prototype = Object.create(ChannelPager.prototype);
+LegalIptvChannelPager.prototype.constructor = LegalIptvChannelPager;
+LegalIptvChannelPager.prototype.nextPage = function() {
+  return source.searchChannels(this.context.query, this.context.page);
+};
 
 function getActivePlaylist() {
   const option = safeString(pluginSettings.homeFeedIndex, "0");
