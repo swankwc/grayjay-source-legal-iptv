@@ -1,12 +1,12 @@
-const PLATFORM = "Legal IPTV";
-const BASE_URL = "https://iptv-org.github.io/iptv/";
-const WATCH_PREFIX = BASE_URL + "watch/";
-const CHANNEL_PREFIX = BASE_URL + "channel/";
-const PAGE_SIZE = 40;
-const CACHE_TTL_MS = 5 * 60 * 1000;
-const STALE_CACHE_TTL_MS = 60 * 60 * 1000;
+var PLATFORM = "Legal IPTV";
+var BASE_URL = "https://iptv-org.github.io/iptv/";
+var WATCH_PREFIX = BASE_URL + "watch/";
+var CHANNEL_PREFIX = BASE_URL + "channel/";
+var PAGE_SIZE = 40;
+var CACHE_TTL_MS = 5 * 60 * 1000;
+var STALE_CACHE_TTL_MS = 60 * 60 * 1000;
 
-const PLAYLISTS = [
+var PLAYLISTS = [
   // iptv-org by category
   { key: "all",           name: "All Legal Channels",         url: BASE_URL + "index.m3u" },
   { key: "eng",           name: "English",                    url: BASE_URL + "languages/eng.m3u" },
@@ -33,10 +33,10 @@ const PLAYLISTS = [
   { key: "freetv",        name: "Free-TV Curated",            url: "https://raw.githubusercontent.com/Free-TV/IPTV/master/playlist.m3u8" },
 ];
 
-let config = {};
-let pluginSettings = {};
-let playlistCache = {};
-let epgCache = {};
+var config = {};
+var pluginSettings = {};
+var playlistCache = {};
+var epgCache = {};
 
 source.enable = function(conf, settings, savedState) {
   config = (conf !== null && conf !== undefined) ? conf : {};
@@ -53,12 +53,12 @@ source.saveState = function() {
 };
 
 source.getHome = function(continuationToken) {
-  const playlist = getActivePlaylist();
-  const page = getPageFromToken(continuationToken);
-  const entries = getHomeEntries(playlist);
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
-  const items = entries.slice(start, end).map(entryToPlatformVideo).filter(Boolean);
+  var playlist = getActivePlaylist();
+  var page = getPageFromToken(continuationToken);
+  var entries = getHomeEntries(playlist);
+  var start = (page - 1) * PAGE_SIZE;
+  var end = start + PAGE_SIZE;
+  var items = entries.slice(start, end).map(entryToPlatformVideo).filter(Boolean);
   return new LegalIptvVideoPager(items, end < entries.length, {
     kind: "home",
     playlistKey: playlist.key,
@@ -68,24 +68,24 @@ source.getHome = function(continuationToken) {
 
 source.searchSuggestions = function(query) {
   if (!query || query.trim().length < 2) return [];
-  const playlist = getActivePlaylist();
-  const lowered = query.trim().toLowerCase();
-  const seen = {};
-  const suggestions = [];
-  const entries = getEntries(playlist);
-  for (let i = 0; i < entries.length && suggestions.length < 8; i++) {
-    const name = entries[i].name;
-    const key = name.toLowerCase();
+  var playlist = getActivePlaylist();
+  var lowered = query.trim().toLowerCase();
+  var seen = {};
+  var suggestions = [];
+  var entries = getEntries(playlist);
+  for (var i = 0; i < entries.length && suggestions.length < 8; i++) {
+    var name = entries[i].name;
+    var key = name.toLowerCase();
     if (key.indexOf(lowered) === 0 && !seen[key]) {
       seen[key] = true;
       suggestions.push(name);
     }
   }
   // Also suggest matching group names
-  const groups = getGroups(playlist);
-  for (let i = 0; i < groups.length && suggestions.length < 12; i++) {
-    const g = groups[i].name;
-    const key = g.toLowerCase();
+  var groups = getGroups(playlist);
+  for (var i = 0; i < groups.length && suggestions.length < 12; i++) {
+    var g = groups[i].name;
+    var key = g.toLowerCase();
     if (key.indexOf(lowered) === 0 && !seen[key]) {
       seen[key] = true;
       suggestions.push(g);
@@ -119,13 +119,13 @@ source.getSearchCapabilities = function() {
 };
 
 source.search = function(query, type, order, filters, continuationToken) {
-  const playlist = getActivePlaylist();
-  const page = getPageFromToken(continuationToken);
-  const lowered = safeString(query).trim().toLowerCase();
+  var playlist = getActivePlaylist();
+  var page = getPageFromToken(continuationToken);
+  var lowered = safeString(query).trim().toLowerCase();
 
-  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+  var typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
 
-  const results = getEntries(playlist).filter(function(entry) {
+  var results = getEntries(playlist).filter(function(entry) {
     if (lowered.length > 0 && !matchesQuery(entry, lowered)) return false;
     if (typeFilter.length > 0) {
       if (typeFilter === "live") {
@@ -137,8 +137,8 @@ source.search = function(query, type, order, filters, continuationToken) {
     return true;
   });
 
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
+  var start = (page - 1) * PAGE_SIZE;
+  var end = start + PAGE_SIZE;
   return new LegalIptvVideoPager(results.slice(start, end).map(entryToPlatformVideo).filter(Boolean), end < results.length, {
     kind: "search",
     playlistKey: playlist.key,
@@ -176,14 +176,14 @@ source.getShorts = function() {
 };
 
 source.searchChannelContents = function(channelUrl, query, type, order, filters, continuationToken) {
-  const channelRef = parseChannelUrl(channelUrl);
-  const playlist = getPlaylistByKey(channelRef.playlistKey);
-  const page = getPageFromToken(continuationToken);
-  const lowered = safeString(query).trim().toLowerCase();
+  var channelRef = parseChannelUrl(channelUrl);
+  var playlist = getPlaylistByKey(channelRef.playlistKey);
+  var page = getPageFromToken(continuationToken);
+  var lowered = safeString(query).trim().toLowerCase();
 
-  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+  var typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
 
-  const entries = getEntries(playlist).filter(function(entry) {
+  var entries = getEntries(playlist).filter(function(entry) {
     if (entry.groupSlug !== channelRef.groupSlug) return false;
     if (lowered.length > 0 && !matchesQuery(entry, lowered)) return false;
     if (typeFilter.length > 0) {
@@ -195,8 +195,8 @@ source.searchChannelContents = function(channelUrl, query, type, order, filters,
     }
     return true;
   });
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
+  var start = (page - 1) * PAGE_SIZE;
+  var end = start + PAGE_SIZE;
   return new LegalIptvVideoPager(entries.slice(start, end).map(entryToPlatformVideo).filter(Boolean), end < entries.length, {
     kind: "searchChannelContents",
     url: channelUrl,
@@ -206,14 +206,14 @@ source.searchChannelContents = function(channelUrl, query, type, order, filters,
 };
 
 source.searchChannels = function(query, continuationToken) {
-  const playlist = getActivePlaylist();
-  const page = getPageFromToken(continuationToken);
-  const lowered = safeString(query).trim().toLowerCase();
-  const channels = getGroups(playlist).filter(function(group) {
+  var playlist = getActivePlaylist();
+  var page = getPageFromToken(continuationToken);
+  var lowered = safeString(query).trim().toLowerCase();
+  var channels = getGroups(playlist).filter(function(group) {
     return lowered.length === 0 || group.name.toLowerCase().indexOf(lowered) !== -1;
   });
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
+  var start = (page - 1) * PAGE_SIZE;
+  var end = start + PAGE_SIZE;
   return new LegalIptvChannelPager(channels.slice(start, end).map(function(group) {
     return groupToPlatformChannel(playlist, group);
   }).filter(Boolean), end < channels.length, {
@@ -229,10 +229,10 @@ source.isChannelUrl = function(url) {
 };
 
 source.getChannel = function(url) {
-  const channelRef = parseChannelUrl(url);
-  const playlist = getPlaylistByKey(channelRef.playlistKey);
-  const groups = getGroups(playlist);
-  const group = findGroupBySlug(groups, channelRef.groupSlug);
+  var channelRef = parseChannelUrl(url);
+  var playlist = getPlaylistByKey(channelRef.playlistKey);
+  var groups = getGroups(playlist);
+  var group = findGroupBySlug(groups, channelRef.groupSlug);
   if (!group) {
     throw new ScriptException("Unknown IPTV group: " + channelRef.groupSlug);
   }
@@ -264,13 +264,13 @@ source.getChannelCapabilities = function() {
 };
 
 source.getChannelContents = function(url, type, order, filters, continuationToken) {
-  const channelRef = parseChannelUrl(url);
-  const playlist = getPlaylistByKey(channelRef.playlistKey);
-  const page = getPageFromToken(continuationToken);
+  var channelRef = parseChannelUrl(url);
+  var playlist = getPlaylistByKey(channelRef.playlistKey);
+  var page = getPageFromToken(continuationToken);
 
-  const typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
+  var typeFilter = filters && filters.type ? safeString(filters.type).toLowerCase() : "";
 
-  const entries = getEntries(playlist).filter(function(entry) {
+  var entries = getEntries(playlist).filter(function(entry) {
     if (entry.groupSlug !== channelRef.groupSlug) return false;
     if (typeFilter.length > 0) {
       if (typeFilter === "live") {
@@ -281,8 +281,8 @@ source.getChannelContents = function(url, type, order, filters, continuationToke
     }
     return true;
   });
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
+  var start = (page - 1) * PAGE_SIZE;
+  var end = start + PAGE_SIZE;
   return new LegalIptvVideoPager(entries.slice(start, end).map(entryToPlatformVideo).filter(Boolean), end < entries.length, {
     kind: "channelContents",
     url: url,
@@ -315,15 +315,15 @@ source.isContentDetailsUrl = function(url) {
 };
 
 source.getContentDetails = function(url) {
-  const ref = parseDetailsUrl(url);
-  const playlist = getPlaylistByKey(ref.playlistKey);
-  const entry = findEntryById(getEntries(playlist), ref.entryId);
+  var ref = parseDetailsUrl(url);
+  var playlist = getPlaylistByKey(ref.playlistKey);
+  var entry = findEntryById(getEntries(playlist), ref.entryId);
   if (!entry) {
     throw new ScriptException("Unable to resolve IPTV stream details for " + ref.entryId);
   }
 
-  const vod = isVod(entry);
-  const playback = buildPlayback(entry);
+  var vod = isVod(entry);
+  var playback = buildPlayback(entry);
   return new PlatformVideoDetails({
     id: makePlatformId("stream:" + entry.id),
     name: entry.name,
@@ -426,8 +426,8 @@ LegalIptvChannelPager.prototype.nextPage = function() {
 };
 
 function getActivePlaylist() {
-  const option = safeString(pluginSettings.homeFeedIndex, "0");
-  const index = parseInt(option, 10);
+  var option = safeString(pluginSettings.homeFeedIndex, "0");
+  var index = parseInt(option, 10);
   if (Number.isNaN(index) || index < 0 || index >= PLAYLISTS.length) {
     return PLAYLISTS[0];
   }
@@ -435,7 +435,7 @@ function getActivePlaylist() {
 }
 
 function getPlaylistByKey(key) {
-  for (let i = 0; i < PLAYLISTS.length; i += 1) {
+  for (var i = 0; i < PLAYLISTS.length; i += 1) {
     if (PLAYLISTS[i].key === key) {
       return PLAYLISTS[i];
     }
@@ -444,12 +444,12 @@ function getPlaylistByKey(key) {
 }
 
 function getHomeEntries(playlist) {
-  const limit = getMaxHomeCount();
+  var limit = getMaxHomeCount();
   return getEntries(playlist).slice(0, limit);
 }
 
 function getMaxHomeCount() {
-  const option = safeString(pluginSettings.maxHomeCountIndex, "1");
+  var option = safeString(pluginSettings.maxHomeCountIndex, "1");
   if (option === "0") return 50;
   if (option === "2") return 200;
   if (option === "3") return 400;
@@ -457,10 +457,10 @@ function getMaxHomeCount() {
 }
 
 function getEntries(playlist) {
-  const cacheKey = playlist.key;
-  const cached = playlistCache[cacheKey];
-  const now = Date.now();
-  let entries;
+  var cacheKey = playlist.key;
+  var cached = playlistCache[cacheKey];
+  var now = Date.now();
+  var entries;
 
   if (cached && now - cached.timestamp < CACHE_TTL_MS) {
     entries = cached.entries;
@@ -486,11 +486,11 @@ function getEntries(playlist) {
 function applyFilters(entries) {
   if (!entries) return [];
 
-  const typeIdx = parseInt(safeString(pluginSettings.contentTypeFilter, "0"), 10);
-  const langIdx = parseInt(safeString(pluginSettings.languageFilter, "0"), 10);
-  const countryIdx = parseInt(safeString(pluginSettings.countryFilter, "0"), 10);
-  const hideUndef = safeString(pluginSettings.hideUndefined, "false") === "true";
-  const resIdx = parseInt(safeString(pluginSettings.resolutionFilter, "0"), 10);
+  var typeIdx = parseInt(safeString(pluginSettings.contentTypeFilter, "0"), 10);
+  var langIdx = parseInt(safeString(pluginSettings.languageFilter, "0"), 10);
+  var countryIdx = parseInt(safeString(pluginSettings.countryFilter, "0"), 10);
+  var hideUndef = safeString(pluginSettings.hideUndefined, "false") === "true";
+  var resIdx = parseInt(safeString(pluginSettings.resolutionFilter, "0"), 10);
 
   return entries.filter(function(entry) {
     // Hide undefined
@@ -498,8 +498,8 @@ function applyFilters(entries) {
 
     // Content Type Filter
     if (typeIdx > 0) {
-      const typeMap = ["", "live", "movies", "series", "kids", "sports", "news", "music", "documentary"];
-      const target = typeMap[typeIdx];
+      var typeMap = ["", "live", "movies", "series", "kids", "sports", "news", "music", "documentary"];
+      var target = typeMap[typeIdx];
       if (target === "live") {
         if (isVod(entry)) return false;
       } else {
@@ -509,15 +509,15 @@ function applyFilters(entries) {
 
     // Language Filter
     if (langIdx > 0) {
-      const langMap = ["", "eng", "spa", "fra", "por", "ara", "zho", "hin"];
+      var langMap = ["", "eng", "spa", "fra", "por", "ara", "zho", "hin"];
       if (langIdx < langMap.length) {
-        const target = langMap[langIdx];
+        var target = langMap[langIdx];
         if (entry.language.toLowerCase().indexOf(target) === -1) return false;
       } else {
         // "Other"
-        const knownLangs = ["eng", "spa", "fra", "por", "ara", "zho", "hin"];
-        let isKnown = false;
-        for (let i = 0; i < knownLangs.length; i++) {
+        var knownLangs = ["eng", "spa", "fra", "por", "ara", "zho", "hin"];
+        var isKnown = false;
+        for (var i = 0; i < knownLangs.length; i++) {
           if (entry.language.toLowerCase().indexOf(knownLangs[i]) !== -1) {
             isKnown = true;
             break;
@@ -529,15 +529,15 @@ function applyFilters(entries) {
 
     // Country Filter
     if (countryIdx > 0) {
-      const countryMap = ["", "us", "gb", "ca", "au"];
+      var countryMap = ["", "us", "gb", "ca", "au"];
       if (countryIdx < countryMap.length) {
-        const target = countryMap[countryIdx];
+        var target = countryMap[countryIdx];
         if (entry.country.toLowerCase().indexOf(target) === -1) return false;
       } else {
         // "Other"
-        const knownCountries = ["us", "gb", "ca", "au"];
-        let isKnown = false;
-        for (let i = 0; i < knownCountries.length; i++) {
+        var knownCountries = ["us", "gb", "ca", "au"];
+        var isKnown = false;
+        for (var i = 0; i < knownCountries.length; i++) {
           if (entry.country.toLowerCase().indexOf(knownCountries[i]) !== -1) {
             isKnown = true;
             break;
@@ -549,13 +549,13 @@ function applyFilters(entries) {
 
     // Resolution Filter
     if (resIdx > 0) {
-      const nameRaw = entry.nameRaw.toLowerCase();
+      var nameRaw = entry.nameRaw.toLowerCase();
       if (resIdx === 1 && nameRaw.indexOf("1080p") === -1) return false;
       if (resIdx === 2 && nameRaw.indexOf("720p") === -1) return false;
       if (resIdx === 3) {
-        const sdTags = ["576p", "480p", "270p"];
-        let hasSD = false;
-        for (let i = 0; i < sdTags.length; i++) {
+        var sdTags = ["576p", "480p", "270p"];
+        var hasSD = false;
+        for (var i = 0; i < sdTags.length; i++) {
           if (nameRaw.indexOf(sdTags[i]) !== -1) {
             hasSD = true;
             break;
@@ -570,10 +570,10 @@ function applyFilters(entries) {
 }
 
 function getGroups(playlist) {
-  const entries = getEntries(playlist);
-  const map = {};
-  for (let i = 0; i < entries.length; i += 1) {
-    const entry = entries[i];
+  var entries = getEntries(playlist);
+  var map = {};
+  for (var i = 0; i < entries.length; i += 1) {
+    var entry = entries[i];
     if (!map[entry.groupSlug]) {
       map[entry.groupSlug] = {
         slug: entry.groupSlug,
@@ -587,9 +587,9 @@ function getGroups(playlist) {
       map[entry.groupSlug].logo = entry.logo;
     }
   }
-  const groups = [];
-  const keys = Object.keys(map);
-  for (let i = 0; i < keys.length; i += 1) {
+  var groups = [];
+  var keys = Object.keys(map);
+  for (var i = 0; i < keys.length; i += 1) {
     groups.push(map[keys[i]]);
   }
   groups.sort(function(a, b) {
@@ -599,12 +599,12 @@ function getGroups(playlist) {
 }
 
 function parsePlaylist(body, playlist) {
-  const entries = [];
-  const lines = safeString(body).replace(/\r/g, "").split("\n");
-  let pending = null;
+  var entries = [];
+  var lines = safeString(body).replace(/\r/g, "").split("\n");
+  var pending = null;
 
-  for (let i = 0; i < lines.length; i += 1) {
-    const line = lines[i].trim();
+  for (var i = 0; i < lines.length; i += 1) {
+    var line = lines[i].trim();
     if (!line) {
       continue;
     }
@@ -627,14 +627,14 @@ function parsePlaylist(body, playlist) {
       continue;
     }
 
-    const groupName = firstNonEmpty(pending.groupTitle, playlist.name, "IPTV");
-    const idSeed = playlist.key + "|" + line + "|" + pending.name + "|" + groupName;
-    const entryId = hashText(idSeed);
+    var groupName = firstNonEmpty(pending.groupTitle, playlist.name, "IPTV");
+    var idSeed = playlist.key + "|" + line + "|" + pending.name + "|" + groupName;
+    var entryId = hashText(idSeed);
 
-    const originalName = firstNonEmpty(pending.name, "Untitled channel");
-    const qualityMatch = /\((\d{3,4}p)\)/.exec(originalName);
-    const quality = qualityMatch ? qualityMatch[1] : "";
-    const cleanName = originalName.replace(/\s*\(\d{3,4}p\)\s*$/, "").trim() || originalName;
+    var originalName = firstNonEmpty(pending.name, "Untitled channel");
+    var qualityMatch = /\((\d{3,4}p)\)/.exec(originalName);
+    var quality = qualityMatch ? qualityMatch[1] : "";
+    var cleanName = originalName.replace(/\s*\(\d{3,4}p\)\s*$/, "").trim() || originalName;
 
     entries.push({
       id: entryId,
@@ -656,7 +656,7 @@ function parsePlaylist(body, playlist) {
   }
 
   entries.sort(function(a, b) {
-    const byGroup = compareStrings(a.groupName, b.groupName);
+    var byGroup = compareStrings(a.groupName, b.groupName);
     if (byGroup !== 0) {
       return byGroup;
     }
@@ -666,11 +666,11 @@ function parsePlaylist(body, playlist) {
 }
 
 function fetchPlaylistEntries(playlist) {
-  const urls = getPlaylistCandidateUrls(playlist);
-  let lastError = null;
-  for (let i = 0; i < urls.length; i += 1) {
+  var urls = getPlaylistCandidateUrls(playlist);
+  var lastError = null;
+  for (var i = 0; i < urls.length; i += 1) {
     try {
-      const response = http.GET(urls[i], {}, false);
+      var response = http.GET(urls[i], {}, false);
       if (!response || !response.isOk) {
         throw new ScriptException("Unable to load IPTV playlist: " + urls[i]);
       }
@@ -683,8 +683,8 @@ function fetchPlaylistEntries(playlist) {
 }
 
 function getPlaylistCandidateUrls(playlist) {
-  const urls = [];
-  const mirrorBase = getMirrorBaseUrl();
+  var urls = [];
+  var mirrorBase = getMirrorBaseUrl();
   if (mirrorBase.length > 0) {
     urls.push(mirrorBase + "/" + playlist.key + ".m3u");
   }
@@ -693,15 +693,15 @@ function getPlaylistCandidateUrls(playlist) {
 }
 
 function getMirrorBaseUrl() {
-  const configured = safeString(pluginSettings.playlistMirrorBase).replace(/\/+$/, "");
+  var configured = safeString(pluginSettings.playlistMirrorBase).replace(/\/+$/, "");
   if (configured.length > 0) {
     return configured;
   }
-  const sourceUrl = safeString(config.sourceUrl);
+  var sourceUrl = safeString(config.sourceUrl);
   if (sourceUrl.length === 0) {
     return "";
   }
-  const match = /^(https?:\/\/[^/]+(?:\/.*)?)\/[^/]+$/.exec(sourceUrl);
+  var match = /^(https?:\/\/[^/]+(?:\/.*)?)\/[^/]+$/.exec(sourceUrl);
   if (!match) {
     return "";
   }
@@ -709,7 +709,7 @@ function getMirrorBaseUrl() {
 }
 
 function parseExtInfLine(line) {
-  const info = {
+  var info = {
     name: "",
     groupTitle: "",
     tvgId: "",
@@ -718,15 +718,15 @@ function parseExtInfLine(line) {
     tvgLanguage: "",
     httpUserAgent: ""
   };
-  const commaIndex = line.lastIndexOf(",");
+  var commaIndex = line.lastIndexOf(",");
   info.name = commaIndex >= 0 ? line.substring(commaIndex + 1).trim() : "";
 
-  const attributesPart = commaIndex >= 0 ? line.substring(0, commaIndex) : line;
-  const attrRegex = /([A-Za-z0-9_-]+)="([^"]*)"/g;
-  let match = attrRegex.exec(attributesPart);
+  var attributesPart = commaIndex >= 0 ? line.substring(0, commaIndex) : line;
+  var attrRegex = /([A-Za-z0-9_-]+)="([^"]*)"/g;
+  var match = attrRegex.exec(attributesPart);
   while (match) {
-    const key = match[1];
-    const value = match[2];
+    var key = match[1];
+    var value = match[2];
     if (key === "group-title") info.groupTitle = value;
     if (key === "tvg-id") info.tvgId = value;
     if (key === "tvg-logo") info.tvgLogo = value;
@@ -739,7 +739,7 @@ function parseExtInfLine(line) {
 }
 
 function entryToPlatformVideo(entry) {
-  const vod = isVod(entry);
+  var vod = isVod(entry);
   return new PlatformVideo({
     id: makePlatformId("stream:" + entry.id),
     name: entry.name,
@@ -777,7 +777,7 @@ function buildAuthor(entry) {
 }
 
 function buildThumbnails(logoUrl) {
-  const items = [];
+  var items = [];
   if (logoUrl) {
     items.push(new Thumbnail(logoUrl, 512));
   }
@@ -785,11 +785,11 @@ function buildThumbnails(logoUrl) {
 }
 
 function buildPlayback(entry) {
-  const url = safeString(entry.streamUrl);
-  let hls = null;
-  let dash = null;
-  let live = null;
-  let descriptor = null;
+  var url = safeString(entry.streamUrl);
+  var hls = null;
+  var dash = null;
+  var live = null;
+  var descriptor = null;
 
   if (/\.m3u8(?:$|\?)/i.test(url)) {
     hls = new HLSSource({ name: "Live HLS", duration: 0, url: url });
@@ -823,19 +823,19 @@ function buildPlayback(entry) {
 }
 
 function fetchEpgForDomain(domain) {
-  const cacheKey = domain;
-  const now = Date.now();
+  var cacheKey = domain;
+  var now = Date.now();
   if (epgCache[cacheKey] && now - epgCache[cacheKey].timestamp < CACHE_TTL_MS) {
     return epgCache[cacheKey].data;
   }
 
   try {
-    const url = "https://iptv-org.github.io/epg/guides/" + domain + ".xml";
-    const response = http.GET(url, {}, false);
+    var url = "https://iptv-org.github.io/epg/guides/" + domain + ".xml";
+    var response = http.GET(url, {}, false);
     if (!response || !response.isOk) {
       throw new Error("EPG not found for " + domain);
     }
-    const epgData = parseXmltvBody(response.body);
+    var epgData = parseXmltvBody(response.body);
     epgCache[cacheKey] = {
       timestamp: now,
       data: epgData
@@ -850,20 +850,20 @@ function fetchEpgForDomain(domain) {
 
 function getEpgNow(entry) {
   if (!entry.tvgId || entry.tvgId.indexOf("@") === -1) return null;
-  const domain = entry.tvgId.split("@")[0];
-  const epgData = fetchEpgForDomain(domain);
+  var domain = entry.tvgId.split("@")[0];
+  var epgData = fetchEpgForDomain(domain);
   if (!epgData) return null;
 
-  const channelId = entry.tvgId;
-  const programs = epgData.filter(function(p) { return p.channelId === channelId; });
+  var channelId = entry.tvgId;
+  var programs = epgData.filter(function(p) { return p.channelId === channelId; });
   if (programs.length === 0) return null;
 
-  const now = new Date();
-  let current = null;
-  let next = null;
+  var now = new Date();
+  var current = null;
+  var next = null;
 
-  for (let i = 0; i < programs.length; i++) {
-    const p = programs[i];
+  for (var i = 0; i < programs.length; i++) {
+    var p = programs[i];
     if (now >= p.start && now < p.stop) {
       current = p;
       if (i + 1 < programs.length) {
@@ -877,23 +877,23 @@ function getEpgNow(entry) {
 }
 
 function parseXmltvBody(body) {
-  const programs = [];
-  const progRegex = /<programme\s+([^>]+)>([\s\S]*?)<\/programme>/g;
-  const titleRegex = /<title[^>]*>([\s\S]*?)<\/title>/;
-  const descRegex = /<desc[^>]*>([\s\S]*?)<\/desc>/;
+  var programs = [];
+  var progRegex = /<programme\s+([^>]+)>([\s\S]*?)<\/programme>/g;
+  var titleRegex = /<title[^>]*>([\s\S]*?)<\/title>/;
+  var descRegex = /<desc[^>]*>([\s\S]*?)<\/desc>/;
 
-  let match;
+  var match;
   while ((match = progRegex.exec(body)) !== null) {
-    const attrs = match[1];
-    const content = match[2];
+    var attrs = match[1];
+    var content = match[2];
 
-    const startMatch = /start="([^"]+)"/.exec(attrs);
-    const stopMatch = /stop="([^"]+)"/.exec(attrs);
-    const channelMatch = /channel="([^"]+)"/.exec(attrs);
+    var startMatch = /start="([^"]+)"/.exec(attrs);
+    var stopMatch = /stop="([^"]+)"/.exec(attrs);
+    var channelMatch = /channel="([^"]+)"/.exec(attrs);
 
     if (startMatch && stopMatch && channelMatch) {
-      const titleMatch = titleRegex.exec(content);
-      const descMatch = descRegex.exec(content);
+      var titleMatch = titleRegex.exec(content);
+      var descMatch = descRegex.exec(content);
 
       programs.push({
         channelId: channelMatch[1],
@@ -909,12 +909,12 @@ function parseXmltvBody(body) {
 
 function parseXmltvDate(str) {
   // Format: 20260310120000 +0000
-  const y = parseInt(str.substring(0, 4));
-  const m = parseInt(str.substring(4, 6)) - 1;
-  const d = parseInt(str.substring(6, 8));
-  const h = parseInt(str.substring(8, 10));
-  const min = parseInt(str.substring(10, 12));
-  const s = parseInt(str.substring(12, 14));
+  var y = parseInt(str.substring(0, 4));
+  var m = parseInt(str.substring(4, 6)) - 1;
+  var d = parseInt(str.substring(6, 8));
+  var h = parseInt(str.substring(8, 10));
+  var min = parseInt(str.substring(10, 12));
+  var s = parseInt(str.substring(12, 14));
   return new Date(Date.UTC(y, m, d, h, min, s));
 }
 
@@ -927,10 +927,10 @@ function decodeXmlEntities(str) {
 }
 
 function buildDescription(entry) {
-  const lines = [];
+  var lines = [];
 
   try {
-    const epg = getEpgNow(entry);
+    var epg = getEpgNow(entry);
     if (epg && epg.current) {
       lines.push("NOW: " + epg.current.title);
       if (epg.next) {
@@ -959,7 +959,7 @@ function buildDescription(entry) {
 }
 
 function matchesQuery(entry, lowered) {
-  const haystack = [
+  var haystack = [
     entry.name,
     entry.groupName,
     entry.country,
@@ -978,7 +978,7 @@ function normalizeChannelUrl(playlistKey, groupSlug) {
 }
 
 function parseDetailsUrl(url) {
-  const match = /^https:\/\/iptv-org\.github\.io\/iptv\/watch\/([^/]+)\/([^/?#]+)$/.exec(safeString(url));
+  var match = /^https:\/\/iptv-org\.github\.io\/iptv\/watch\/([^/]+)\/([^/?#]+)$/.exec(safeString(url));
   if (!match) {
     throw new ScriptException("Invalid IPTV details URL: " + url);
   }
@@ -989,7 +989,7 @@ function parseDetailsUrl(url) {
 }
 
 function parseChannelUrl(url) {
-  const match = /^https:\/\/iptv-org\.github\.io\/iptv\/channel\/([^/]+)\/([^/?#]+)$/.exec(safeString(url));
+  var match = /^https:\/\/iptv-org\.github\.io\/iptv\/channel\/([^/]+)\/([^/?#]+)$/.exec(safeString(url));
   if (!match) {
     throw new ScriptException("Invalid IPTV channel URL: " + url);
   }
@@ -1003,7 +1003,7 @@ function findEntryById(entries, id) {
   if (id === "__sample__") {
     return entries.length > 0 ? entries[0] : null;
   }
-  for (let i = 0; i < entries.length; i += 1) {
+  for (var i = 0; i < entries.length; i += 1) {
     if (entries[i].id === id) {
       return entries[i];
     }
@@ -1015,7 +1015,7 @@ function findGroupBySlug(groups, slug) {
   if (slug === "__sample__") {
     return groups.length > 0 ? groups[0] : null;
   }
-  for (let i = 0; i < groups.length; i += 1) {
+  for (var i = 0; i < groups.length; i += 1) {
     if (groups[i].slug === slug) {
       return groups[i];
     }
@@ -1027,7 +1027,7 @@ function getPageFromToken(token) {
   if (!token) {
     return 1;
   }
-  const page = parseInt(String(token), 10);
+  var page = parseInt(String(token), 10);
   return Number.isNaN(page) || page < 1 ? 1 : page;
 }
 
@@ -1040,17 +1040,17 @@ function inferContainer(url) {
 }
 
 function compareStrings(a, b) {
-  const left = safeString(a).toLowerCase();
-  const right = safeString(b).toLowerCase();
+  var left = safeString(a).toLowerCase();
+  var right = safeString(b).toLowerCase();
   if (left < right) return -1;
   if (left > right) return 1;
   return 0;
 }
 
 function hashText(text) {
-  let hash = 5381;
-  const value = safeString(text);
-  for (let i = 0; i < value.length; i += 1) {
+  var hash = 5381;
+  var value = safeString(text);
+  for (var i = 0; i < value.length; i += 1) {
     hash = ((hash << 5) + hash) + value.charCodeAt(i);
     hash = hash & 0xffffffff;
   }
@@ -1061,7 +1061,7 @@ function hashText(text) {
 }
 
 function slugify(value) {
-  const slug = safeString(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  var slug = safeString(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return slug || "general";
 }
 
@@ -1070,13 +1070,13 @@ function makePlatformId(id) {
 }
 
 function isVod(entry) {
-  const group = entry.groupName.toLowerCase();
+  var group = entry.groupName.toLowerCase();
   return group.indexOf("movies") !== -1 || group.indexOf("series") !== -1;
 }
 
 function firstNonEmpty() {
-  for (let i = 0; i < arguments.length; i += 1) {
-    const value = safeString(arguments[i]);
+  for (var i = 0; i < arguments.length; i += 1) {
+    var value = safeString(arguments[i]);
     if (value.length > 0) {
       return value;
     }
